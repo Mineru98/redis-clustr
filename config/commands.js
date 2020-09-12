@@ -1,4 +1,4 @@
-// Generated using tools/commands.js and config/commandsConfig.js on Wed, 21 Mar 2018 11:49:17 GMT
+// Generated using tools/commands.js and config/commandsConfig.js on Sat, 12 Set 2020 14:53:17 GMT
 
 module.exports = {
   append: {
@@ -677,6 +677,12 @@ module.exports = {
     keyless: false,
     readOnly: false
   },
+	send_command: {
+		multiKey: false,
+    interval: 0,
+    keyless: true,
+    readOnly: true
+	},
   select: {
     multiKey: false,
     interval: 0,

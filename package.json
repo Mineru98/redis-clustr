@@ -1,6 +1,6 @@
 {
   "name": "redis-clustr",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Redis cluster client",
   "main": "src/RedisClustr.js",
   "keywords": [
@@ -9,12 +9,13 @@
     "database"
   ],
   "bugs": {
-    "url": "https://github.com/gosquared/redis-clustr/issues"
+    "url": "https://github.com/mineru98/redis-clustr/issues"
   },
   "contributors": [
     "GoSquared <support+npm@gosquared.com> (https://www.gosquared.com)",
     "James Taylor <jt@gosquared.com> (https://www.gosquared.com)",
-    "Simon Tabor <me@simontabor.com> (http://simontabor.com/)"
+    "Simon Tabor <me@simontabor.com> (http://simontabor.com/)",
+		"Mineru <mineru664500@gmail.com> (https://github.com/Mineru98)"
   ],
   "license": "MIT",
   "repository": {
@@ -28,7 +29,7 @@
   "dependencies": {
     "cluster-key-slot": "^1.0.5",
     "denque": "^1.1.0",
-    "redis": "^2.6.0"
+    "redis": "^3.0.2"
   },
   "devDependencies": {
     "benchmark": "^2.1.1",
