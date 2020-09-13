@@ -28,7 +28,7 @@ var RedisClustr = module.exports = function(config) {
 
   for (var i = 0; i < config.servers.length; i++) {
     var c = config.servers[i];
-    self.getClient(c.port, c.host);
+    self.getClient(c.port, c.host, c.password);
   }
 
   // fetch slots from the cluster immediately to ensure slots are correct
@@ -42,10 +42,9 @@ util.inherits(RedisClustr, Events);
 
 RedisClustr.prototype.createClient = function(port, host, password) {
   var self = this;
-
+	
   var createClient = self.config.createClient || redis.createClient;
   var cli = createClient(port, host, password, self.config.redisOptions);
-
   return cli;
 };
 
@@ -57,7 +56,7 @@ RedisClustr.prototype.createClient = function(port, host, password) {
  * @param  {boolean}  master Whether this client is a master or not (a slave)
  * @return {Redis}           The Redis client
  */
-RedisClustr.prototype.getClient = function(port, host, master) {
+RedisClustr.prototype.getClient = function(port, host, password, master) {
   var self = this;
   var name = host + ':' + port;
 
@@ -68,8 +67,7 @@ RedisClustr.prototype.getClient = function(port, host, master) {
     cli.master = master;
     return cli;
   }
-
-  cli = self.createClient(port, host);
+  cli = self.createClient(port, host, password);
   cli.master = master;
 
   cli.on('error', function(err) {
@@ -132,7 +130,7 @@ RedisClustr.prototype.getClient = function(port, host, master) {
  */
 RedisClustr.prototype.getRandomConnection = function(exclude, forceSlaves) {
   var self = this;
-
+	
   var masterOnly = !forceSlaves && self.config.slaves === 'never';
 
   var available = Object.keys(self.connections).filter(function(f) {
@@ -144,7 +142,6 @@ RedisClustr.prototype.getRandomConnection = function(exclude, forceSlaves) {
   });
 
   var randomIndex = Math.floor(Math.random() * available.length);
-
   return self.connections[available[randomIndex]];
 };
 
@@ -220,7 +217,7 @@ RedisClustr.prototype.getSlots = function(cb) {
           var name = c[0] + ':' + c[1];
           if (seenClients.indexOf(name) === -1) seenClients.push(name);
 
-          return self.getClient(c[1], c[0], index === 0);
+          return self.getClient(c[1], c[0], c[2], index === 0);
         });
 
         for (var j = start; j <= end; j++) {
@@ -577,7 +574,7 @@ RedisClustr.prototype.subscribeAll = function(exclude) {
   }
 
   // duplicate the random connection and make that our subscriber client
-  var cli = self.subscribeClient = self.createClient(con.connection_options.port, con.connection_options.host);
+  var cli = self.subscribeClient = self.createClient(con.connection_options.port, con.connection_options.host, con.connection_options.password);
 
   cli.on('error', function(err) {
     if (
@@ -768,6 +765,7 @@ RedisClustr.prototype.quit = function(cb) {
   if (self._slotInterval) clearInterval(self._slotInterval);
 
   var todo = 0;
+	var exit_stack = 0;
   var errs = null;
   var quitCb = function(err) {
     if (err && !errs) errs = [];
@@ -779,6 +777,10 @@ RedisClustr.prototype.quit = function(cb) {
     if (!self.connections[i]) continue;
     todo++;
     self.connections[i].quit(quitCb);
+		exit_stack++;
+		if (exit_stack == self.config.servers.length && self.quitting) {
+			process.exit(0);
+		}
   }
 
   if (self.subscribeClient) {
