@@ -43,8 +43,8 @@ util.inherits(RedisClustr, Events);
 RedisClustr.prototype.createClient = function(port, host, password) {
   var self = this;
 	
-  var createClient = self.config.createClient || redis.createClient;
-  var cli = createClient(port, host, password, self.config.redisOptions);
+  var createClient = redis.createClient;
+  var cli = createClient({port, host, password});
   return cli;
 };
 
