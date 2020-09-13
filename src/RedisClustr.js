@@ -40,11 +40,11 @@ var RedisClustr = module.exports = function(config) {
 
 util.inherits(RedisClustr, Events);
 
-RedisClustr.prototype.createClient = function(port, host) {
+RedisClustr.prototype.createClient = function(port, host, password) {
   var self = this;
 
   var createClient = self.config.createClient || redis.createClient;
-  var cli = createClient(port, host, self.config.redisOptions);
+  var cli = createClient(port, host, password, self.config.redisOptions);
 
   return cli;
 };
